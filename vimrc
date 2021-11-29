@@ -1,7 +1,11 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Helper functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
+function s:CloseBufferNotWindow()
+    let l:id = bufnr('%')
+    bnext
+    execute id.'bdelete'
+endfunction
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -85,6 +89,8 @@ Plug 'sheerun/vim-polyglot'                             " Adds polyglot multi la
 Plug 'vim-scripts/YankRing.vim'                         " Allows copy and cut stashing
 Plug 'tpope/vim-surround'                               " Adds tags manipulations
 Plug 'tpope/vim-commentary'                             " Adds multi language comment support
+Plug 'junegunn/fzf'                                     " Adds fuzzy finder search assistant
+Plug 'junegunn/fzf.vim'                                 " Fuzzy finder vim wrapper
 
 " Initialize plugin system
 call plug#end()
@@ -109,7 +115,7 @@ let g:airline#extensions#tabline#buffer_idx_mode=1      " Show buffer number in 
 let g:airline_powerline_fonts=1                         " User powerline font with status bar for arrows
 let g:airline_theme='gruvbox'                           " Use gruvbox theme for airline
 let g:NERDTreeGitStatusShowIgnored=1                    " Mark git ignored files in nerd tree
-let g:indent_guides_enable_on_vim_startup=1
+let g:indent_guides_enable_on_vim_startup=0
 
 colorscheme gruvbox
 
@@ -120,18 +126,17 @@ colorscheme gruvbox
 command -nargs=* SudoSave execute 'w !sudo tee % > /dev/null'
 command -nargs=* SourceConfig execute 'w | source .vimrc | noh'
 
-imap fj <esc>
+imap fj <esc> 
 map fj <esc> 
 
-nmap ; :
 
-nmap <leader>sw :wincmd w<Cr>                           " Switch between windows
-nmap <leader>sb :bnext<Cr>                              " Switch between buffers
-nmap <leader>yr :YRShow<Cr>                             " Open yankring in bottom window 
-nmap <leader>tt :NERDTreeToggle<CR>                     " Toggle nerdtree visibility
-nmap <leader>tn :set relativenumber!<CR>                " Toggle line nuber between absolute and relative
-
-
+nmap <leader>sw :wincmd w<CR>                                                " Switch between windows
+nmap <leader>sb :bnext<CR>                                                   " Switch between buffers
+nmap <leader>tt :NERDTreeToggle<CR>                                          " Toggle nerdtree visibility
+nmap <leader>tn :set relativenumber!<CR>                                     " Toggle line nuber between absolute and relative
+nmap <leader>tc :let &background=(&background=="dark"?"light":"dark")<CR>    " Toggle theme between dark and light  
+nmap <leader>ch :noh<CR>                                                     " Cancel selection highlight
+nmap <leader>cb :call <SID>CloseBufferNotWindow()<CR>                        " Close current buffer and jump to next
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Automation
@@ -139,17 +144,15 @@ nmap <leader>tn :set relativenumber!<CR>                " Toggle line nuber betw
 " Update buffer when changes are made from outside vim
 au FocusGained,BufEnter * checktime
 
-" Start NERDTree and put the cursor back in the other window
-au VimEnter * if argc() | NERDTree | wincmd p | endif
+" Return to last edit position when opening files
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif
 
 " Use startify landing page when no files is provided as arg on vim startup
 au VimEnter * if !argc() | Startify | NERDTree | wincmd w | endif
 
-" Return to last edit position when opening files
-au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif
+" Start NERDTree and put the cursor back in the other window
+au VimEnter * if argc() | NERDTreeFind | wincmd p | endif
 
 " Exit Vim if NERDTree is the only window remaining in the only tab.
 au BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
-
-
 
