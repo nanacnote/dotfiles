@@ -72,6 +72,12 @@ set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Stores
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Pluggins
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Install vim-plug if not found
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
 " Specify a directory for plugins
 " Use single quotes around github path url
 call plug#begin('~/.vim/plugged')
